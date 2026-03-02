@@ -1,7 +1,3 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
 
 trigger:
 - main
@@ -10,10 +6,26 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-- script: echo Hello, world!
+- script: echo K8S Terraform Azure!
   displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+- task: DownloadSecureFile@1
+  name: publickey
+  inputs:
+    secureFile: 'azure_rsa.pub'
+- task: TerraformCLI@2
+  inputs:
+    command: 'init'
+    workingDirectory: '$(System.DefaultWorkingDirectory)configuration/iaac/azure/kubernetes'
+    commandOptions: '-var client_id=$(client_id) -var client_secret=$(client_secret) -var ssh_public_key(publickey.secureFilePath)'
+    backendType: 'azurerm'
+    backendServiceArm: 'Kubernetes-Docker-pipeliens'
+    backendAzureRmTenantId: '55cecee6-f9fa-4546-a278-c1fb86ba2dae'
+    backendAzureRmSubscriptionId: 'c8981bbe-3eda-4ec3-8066-620482a1a9fc'
+    ensureBackend: true
+    backendAzureRmResourceGroupName: 'storagesyedshahxyz'
+    backendAzureRmResourceGroupLocation: 'westeurope'
+    backendAzureRmStorageAccountName: 'kubernetes-terraform-rg'
+    backendAzureRmContainerName: 'storagesyedshahxyz'
+    backendAzureRmKey: 'kubernetes.dev.tfstate'
+    allowTelemetryCollection: true
+  displayName: 'Run a one-line script'
